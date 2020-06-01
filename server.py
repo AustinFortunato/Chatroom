@@ -16,17 +16,21 @@ users = {}
 connections = {}
 loggedIn = []
 types = {
-	0 : "Register"
-	1 : "Login"
-	2 : "Send Global"
-	3 : "Send To"
-	4 : "Log Off"
+	0 : "Register",
+	1 : "Login",
+	2 : "Send Global",
+	3 : "Send To",
+	4 : "Log Off",
+	5 : "Server Message"
 }
 
 
 # Sends a message
-def send(conn, message):
-	pass
+def send(conn, message, message_type):
+	message_length = len(message)
+	header = message_length + " "*(buff-len(str(message_length))) + str(message_type)
+	conn.send((header + message).encode('utf-8'))
+	
 
 
 # Receives message and breaks it into peices
@@ -50,11 +54,11 @@ def register(conn, message):
 	username = message[:18].split("¦")
 	password = message[18:50].split("¦")
 	if username not in users:
-		send(conn, f'Registered, {username}')
+		send(conn, f'Registered, {username}', 5)
 		users[username] = password
 		connections[conn] = username
 	else:
-		send(conn, 'Username already taken!')
+		send(conn, 'Username already taken!', 5)
 
 
 # Authenticates a users login
@@ -63,20 +67,20 @@ def login(conn, message):
 	password = message[18:50].split("¦")
 	if username in users:
 		if users[username] == password:
-			send(conn, f'Logged in {username}')
+			send(conn, f'Logged in {username}', 5)
 			loggedIn.append(users[username])
 		else:
-			send(conn, 'Incorrect Username/Password')
+			send(conn, 'Incorrect Username/Password', 5)
 	else:
-		send(conn, 'Incorrect Username/Password')
+		send(conn, 'Incorrect Username/Password', 5)
 
 
 # Sends a message to everyone
 def sendGlobal(conn, message):
 	user = connections[conn]
 	for i in connections:
-		if i != conn && i in loggedIn:
-			send(i, (f'2{user} > {message}').encode('utf-8'))
+		if i != conn and i in loggedIn:
+			send(i, f'{user} > {message}', 2)
 
 
 # Sends to user/s
@@ -87,7 +91,7 @@ def sendTo(conn, message):
 		recipients.append(message[(i-1)*18:i*18].split("¦"))
 	for i in recipients:
 		if i in loggedIn:
-			send(list(users.keys())[list(users.values()).index(i)], f'3{users[conn]} > {message[2+recipients*18:]}')
+			send(list(users.keys())[list(users.values()).index(i)], f'{users[conn]} > {message[2+recipients*18:]}', 3)
 
 
 # Logs a user off
