@@ -21,14 +21,16 @@ types = {
 	2 : "sendGlobal",
 	3 : "sendTo",
 	4 : "logOff",
-	5 : "Server Message"
+	5 : "Server Message",
+	6 : "Success",
+	7 : "Failure"
 }
 
 
 # Sends a message
 def send(conn, message, message_type):
 	message_length = len(message)
-	header = message_length + " "*(buff-len(str(message_length))) + str(message_type)
+	header = str(message_length+1) + " "*(buff-len(str(message_length))+1) + str(message_type)
 	conn.send((header + message).encode('utf-8'))
 
 
@@ -53,11 +55,11 @@ def register(conn, message):
 	username = message[:18].split("¦")
 	password = message[18:50].split("¦")
 	if username not in users:
-		send(conn, f'Registered, {username}', 5)
+		send(conn, f'Registered, {username}', 6)
 		users[username] = password
 		connections[conn] = username
 	else:
-		send(conn, 'Username already taken!', 5)
+		send(conn, 'Username already taken!', 7)
 
 
 # Authenticates a users login
@@ -66,12 +68,12 @@ def login(conn, message):
 	password = message[18:50].split("¦")
 	if username in users:
 		if users[username] == password:
-			send(conn, f'Logged in {username}', 5)
+			send(conn, f'Logged in {username}', 6)
 			loggedIn.append(users[username])
 		else:
-			send(conn, 'Incorrect Username/Password', 5)
+			send(conn, 'Incorrect Username/Password', 7)
 	else:
-		send(conn, 'Incorrect Username/Password', 5)
+		send(conn, 'Incorrect Username/Password', 7)
 
 
 # Sends a message to everyone

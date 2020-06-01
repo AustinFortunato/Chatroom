@@ -8,14 +8,17 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 host = f"192.168.1.{sys.argv[1]}"
 port = 42069
 buff = 10
+chunk = 1024
 
 types = {
-	0 : "Register",
-	1 : "Login",
-	2 : "Send Global",
-	3 : "Send To",
-	4 : "Log Off",
-	5 : "Server Message"
+	0 : "register",
+	1 : "login",
+	2 : "sendGlobal",
+	3 : "sendTo",
+	4 : "logOff",
+	5 : "Server Message",
+	6 : "Success",
+	7 : "Failure"
 }
 
 
@@ -38,6 +41,42 @@ def receive():
 			message += s.recv(chunk).decode('utf-8')
 
 	message_type = int(message[:1])
-	return message_type
+	return int(message_type)
 	return message[1:]
 
+
+# Makes user a new account
+def register():
+	while 1:
+		username = input("Username: ")
+		if len(username) > 18:
+			print("Username length cannot excede 18 characters.")
+		else:
+			password = input("Password: ")
+			if password > 32:
+				print("Password cannot excede 32 characters.")
+			else:
+				username = username + "¦"*(len(username)-18)
+				password = password + "¦"*(len(username)-32)
+				message = f"{username}{password}"
+				send(f"{header}{message}", 0)
+				response_type, response = receive()
+				print(response)
+				if types[response_type] == "Success":
+					login()
+					break
+
+
+# Authenticates username/password
+def login():
+	pass
+
+
+# Sends a message to everyone
+def sendGlobal():
+	pass
+
+
+# Sends a message to person/s
+def sendTo():
+	pass
