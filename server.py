@@ -16,11 +16,11 @@ users = {}
 connections = {}
 loggedIn = []
 types = {
-	0 : "Register",
-	1 : "Login",
-	2 : "Send Global",
-	3 : "Send To",
-	4 : "Log Off",
+	0 : "register",
+	1 : "login",
+	2 : "sendGlobal",
+	3 : "sendTo",
+	4 : "logOff",
 	5 : "Server Message"
 }
 
@@ -30,7 +30,6 @@ def send(conn, message, message_type):
 	message_length = len(message)
 	header = message_length + " "*(buff-len(str(message_length))) + str(message_type)
 	conn.send((header + message).encode('utf-8'))
-	
 
 
 # Receives message and breaks it into peices
@@ -97,3 +96,18 @@ def sendTo(conn, message):
 # Logs a user off
 def logOff(conn):
 	loggedIn.pop(users[conn])
+
+
+# Runs the server and logic.
+s.bind((host,port))
+while True:
+	conn, addr = s.accept()
+	connections[conn] = addr
+	if conn:
+		send(conn, "Connected...", 5)
+		message_type, message = receive(conn)
+		if message_type == 4:
+			logOff(conn)
+			conn.close()
+		elif message_type in types:
+			exec(f"{types[message_type]}(conn, message)")
