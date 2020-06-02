@@ -57,9 +57,9 @@ def register():
 				print("Password cannot excede 32 characters.")
 			else:
 				username = username + "¦"*(len(username)-18)
-				password = password + "¦"*(len(username)-32)
+				password = password + "¦"*(len(password(-32)
 				message = f"{username}{password}"
-				send(f"{header}{message}", 0)
+				send(message, 0)
 				response_type, response = receive()
 				print(response)
 				if types[response_type] == "Success":
@@ -69,7 +69,24 @@ def register():
 
 # Authenticates username/password
 def login():
-	pass
+	while 1:
+		username = input("Username: ")
+		if len(username > 18:
+			print("Username length cannot excede 18 characters.")
+		else:
+			password = input("Password: ")
+			if password > 32:
+				print("Incorrect password.")
+			else:
+				username = username + "¦"*(len(username)-18)
+				password = password + "¦"*(len(password)-32)
+				message = f"{username}{password}"
+				send(message, 1)
+				response_type, response = receive()
+				print(response)
+				if types[response_type] == "Success":
+					return 6
+					break
 
 
 # Sends a message to everyone
