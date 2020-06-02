@@ -90,10 +90,13 @@ def login():
 
 
 # Sends a message to everyone
-def sendGlobal():
-	pass
+def sendGlobal(message):
+	send(message, 2)
 
 
 # Sends a message to person/s
-def sendTo():
-	pass
+def sendTo(message, users):
+	send = ''
+	for i in users:
+		send += (i + "¦"*(18-len(i)))
+	send(send+message, 3)
