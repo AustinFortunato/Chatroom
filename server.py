@@ -41,19 +41,17 @@ def receive(conn):
 
 	while len(message) < message_size:
 		if len(message) - message_size < chunk:
-			message += conn.recv(len(message) - message_size).decode('utf-8')
+			message += conn.recv(message_size - len(message)).decode('utf-8')
 		else:
 			message += conn.recv(chunk).decode('utf-8')
-
-	message_type = int(message[:1])
-	return message_type
-	return message[1:]
+	
+	return message
 
 
 # Registers a new user
 def register(conn, message):
-	username = message[:18].split("¦")
-	password = message[18:50].split("¦")
+	username = message[:18].strip("¦")
+	password = message[18:50].strip("¦")
 	if username not in users:
 		send(conn, f'Registered, {username}', 6)
 		users[username] = password
@@ -64,8 +62,8 @@ def register(conn, message):
 
 # Authenticates a users login
 def login(conn, message):
-	username = message[:18].split("¦")
-	password = message[18:50].split("¦")
+	username = message[:18].strip("¦")
+	password = message[18:50].strip("¦")
 	if username in users:
 		if users[username] == password:
 			send(conn, f'Logged in {username}', 6)
@@ -89,7 +87,7 @@ def sendTo(conn, message):
 	num_recipients = int(message[:2])
 	recipients = []
 	for i in num_recipients:
-		recipients.append(message[(i-1)*18:i*18].split("¦"))
+		recipients.append(message[(i-1)*18:i*18].strip("¦"))
 	for i in recipients:
 		if i in loggedIn:
 			send(list(users.keys())[list(users.values()).index(i)], f'{users[conn]} > {message[2+recipients*18:]}', 3)
@@ -109,9 +107,12 @@ if parameter.lower() == "run":
 		connections[conn] = addr
 		if conn:
 			send(conn, "Connected...", 5)
-			message_type, message = receive(conn)
-			if message_type == 4:
-				logOff(conn)
-				conn.close()
-			elif message_type in types:
-				exec(f"{types[message_type]}(conn, message)")
+			while True:
+				message = receive(conn)
+				message_type = int(message[:1])
+				if message_type == 4:
+					logOff(conn)
+					conn.close()
+					break
+				elif message_type in types:
+					exec(f"{types[message_type]}(conn, message)")

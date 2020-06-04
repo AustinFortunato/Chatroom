@@ -24,9 +24,9 @@ types = {
 
 # Sends a message
 def send(message, message_type):
-	message_length = len(message)
-	header = str(message_length) + " "*(buff-len(str(message_length))) + str(message_type)
-	s.send((header + message).encode('utf-8'))
+	message_length = len(message) + 1
+	header = str(message_length) + " "*(buff-len(str(message_length)))
+	s.send((header + str(message_type) + message).encode('utf-8'))
 
 
 # Receives message and breaks it into peices
