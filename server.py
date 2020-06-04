@@ -5,7 +5,7 @@ import sys
 
 parameter = sys.argv[1]
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.setsockopt(socket.SOL_STREAM, socket.SO_REUSEADDR, 1)
+s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
 host = ""
 port = 42069
@@ -40,8 +40,8 @@ def receive(conn):
 	message = ''
 
 	while len(message) < message_size:
-		if message - len(message_size) < chunk:
-			message += conn.recv(message - len(message_size)).decode('utf-8')
+		if len(message) - message_size < chunk:
+			message += conn.recv(len(message) - message_size).decode('utf-8')
 		else:
 			message += conn.recv(chunk).decode('utf-8')
 
@@ -101,15 +101,17 @@ def logOff(conn):
 
 
 # Runs the server and logic.
-s.bind((host,port))
-while True:
-	conn, addr = s.accept()
-	connections[conn] = addr
-	if conn:
-		send(conn, "Connected...", 5)
-		message_type, message = receive(conn)
-		if message_type == 4:
-			logOff(conn)
-			conn.close()
-		elif message_type in types:
-			exec(f"{types[message_type]}(conn, message)")
+if parameter.lower() == "run":
+	s.bind((host,port))
+	s.listen(10)
+	while True:
+		conn, addr = s.accept()
+		connections[conn] = addr
+		if conn:
+			send(conn, "Connected...", 5)
+			message_type, message = receive(conn)
+			if message_type == 4:
+				logOff(conn)
+				conn.close()
+			elif message_type in types:
+				exec(f"{types[message_type]}(conn, message)")

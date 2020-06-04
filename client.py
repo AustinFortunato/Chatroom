@@ -5,7 +5,7 @@ import sys
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-host = f"192.168.1.{sys.argv[1]}"
+host = f"{sys.argv[1]}"
 port = 42069
 buff = 10
 chunk = 1024
@@ -25,13 +25,13 @@ types = {
 # Sends a message
 def send(message, message_type):
 	message_length = len(message)
-	header = message_length + " "*(buff-len(str(message_length))) + str(message_type)
+	header = str(message_length) + " "*(buff-len(str(message_length))) + str(message_type)
 	s.send((header + message).encode('utf-8'))
 
 
 # Receives message and breaks it into peices
 def receive():
-	message_size = int(conn.recv(buff).decode('utf-8'))
+	message_size = int(s.recv(buff).decode('utf-8'))
 	message = ''
 
 	while len(message) < message_size:
@@ -53,12 +53,12 @@ def register():
 			print("Username length cannot excede 18 characters.")
 		else:
 			password = input("Password: ")
-			if password > 32:
+			if len(password) > 32:
 				print("Password cannot excede 32 characters.")
 			else:
 				username = username + "¦"*(len(username)-18)
-				password = password + "¦"*(len(password(-32)
-				message = f"{username}{password}"
+				password = password + "¦"*(len(password)-32)
+				message = username + password
 				send(message, 0)
 				response_type, response = receive()
 				print(response)
@@ -71,11 +71,11 @@ def register():
 def login():
 	while 1:
 		username = input("Username: ")
-		if len(username > 18:
+		if len(username) > 18:
 			print("Username length cannot excede 18 characters.")
 		else:
 			password = input("Password: ")
-			if password > 32:
+			if len(password) > 32:
 				print("Incorrect password.")
 			else:
 				username = username + "¦"*(len(username)-18)
@@ -100,3 +100,13 @@ def sendTo(message, users):
 	for i in users:
 		send += (i + "¦"*(18-len(i)))
 	send(send+message, 3)
+
+
+account = input("Login or Register? ")
+s.connect((host,port))
+if account == "Login":
+	login()
+elif account == "Register":
+	register()
+else:
+	print("Incorrect")
